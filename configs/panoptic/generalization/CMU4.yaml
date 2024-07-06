@@ -1,0 +1,155 @@
+DEBUG:
+  PRINT_TO_FILE: false
+
+CUDNN:
+  BENCHMARK: true
+  DETERMINISTIC: false
+  ENABLED: true
+TRANSFORMER: 'dq_transformer'
+BACKBONE_MODEL: 'pose_resnet'
+MODEL: 'multi_person_posenet'
+DATA_DIR: ''
+GPUS: '0,1,2,3'
+OUTPUT_DIR: 'output'
+LOG_DIR: 'log'
+WORKERS: 4
+PRINT_FREQ: 100
+
+DATASET:
+  COLOR_RGB: True
+  TRAIN_DATASET: 'panoptic'
+  TEST_DATASET: 'panoptic'
+  DATA_FORMAT: jpg
+  DATA_AUGMENTATION: False
+  FLIP: False
+  ROOT: 'data/panoptic/'
+  ROT_FACTOR: 45
+  SCALE_FACTOR: 0.35
+  TEST_SUBSET: 'validation'
+  TRAIN_SUBSET: 'train'
+  ROOTIDX: 2
+  CAMERA_NUM: 10
+  TEST_CAM_SEQ: CMU4
+  SUBSET_SELECTION: 'all'
+  FILTER_VALID_OBSERVATIONS: False
+  NMS_DETAIL: True
+
+NETWORK:
+  PRETRAINED_BACKBONE: "models/pose_resnet50_panoptic.pth.tar"
+  PRETRAINED:  ''
+  TARGET_TYPE: gaussian
+  IMAGE_SIZE:
+  - 960
+  - 512
+  HEATMAP_SIZE:
+  - 240
+  - 128
+  SIGMA: 3
+  NUM_JOINTS: 15
+  USE_GT: False
+POSE_RESNET:
+  FINAL_CONV_KERNEL: 1
+  DECONV_WITH_BIAS: False
+  NUM_DECONV_LAYERS: 3
+  NUM_DECONV_FILTERS:
+  - 256
+  - 256
+  - 256
+  NUM_DECONV_KERNELS:
+  - 4
+  - 4
+  - 4
+  NUM_LAYERS: 50
+LOSS:
+  USE_TARGET_WEIGHT: true
+TRAIN:
+  BATCH_SIZE: 8
+  SHUFFLE: true
+  BEGIN_EPOCH: 0
+  END_EPOCH: 100
+  RESUME: False
+  OPTIMIZER: adam
+  LR: 0.0004
+TEST:
+  BATCH_SIZE: 8
+DEBUG:
+  DEBUG: true
+  SAVE_HEATMAPS_GT: true
+  SAVE_HEATMAPS_PRED: true
+MULTI_PERSON:
+  SPACE_SIZE:
+    - 8000.0
+    - 8000.0
+    - 2000.0
+  SPACE_CENTER:
+    - 0.0 # 120.0
+    - -500.0 # -600.0
+    - 800.0
+  INITIAL_CUBE_SIZE:
+    - 80
+    - 80
+    - 20
+  MAX_PEOPLE_NUM: 64
+  THRESHOLD: 0.3
+PICT_STRUCT:
+  GRID_SIZE:
+    - 2000.0
+    - 2000.0
+    - 2000.0
+  CUBE_SIZE:
+    - 64
+    - 64
+    - 64
+DECODER:
+  t_pose_dir: './tpose.pt'
+  d_model: 256
+  nhead: 8
+  dim_feedforward: 1024
+  dropout: 0.1
+  activation: 'relu'
+  num_feature_levels: 1
+  dec_n_points: 8
+  num_decoder_layers: 4
+  return_intermediate_dec: True
+  num_instance: 1024   ## Queries Num
+  num_keypoints: 15
+  with_pose_refine: True
+  aux_loss: False
+  lr_linear_proj_mult: 0.1
+  loss_pose_normalize: False
+  loss_joint_type: 'l1'
+  pred_class_fuse: 'mean'
+  pred_conf_threshold: 0.5
+  match_coord_est: 'abs'
+  match_coord_gt: 'norm'
+  detach_refpoints_cameraprj_firstlayer: True
+  fuse_view_feats: 'cat_proj'
+  epipolar_encoder: False
+  loss_pose_perprojection_2d: 5.0
+  loss_pose_perjoint: 5.0
+  loss_weight_loss_ce: 2.0
+  feature_update_method: MLP
+  init_self_attention: False
+  open_forward_ffn: True
+  query_filter_method: threshold
+  init_ref_method: sample_space
+  init_ref_method_value: 0
+  gt_match: True
+  optimizer: adam
+  query_embed_type: person_joint
+  projattn_posembed_mode: ablation_not_use_rayconv
+  use_feat_level:
+    - 0
+    - 1
+    - 2
+
+  match_method: KNN
+  match_method_value: 3
+  close_pose_embedding: False
+  share_layer_weights: False
+  use_ce_match: False
+  filter_query: True
+  inference_conf_thr:
+    - 0.1
+  loss_weight_init: 0.0
+

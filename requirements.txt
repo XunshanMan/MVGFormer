@@ -1,0 +1,16 @@
+numpy
+tqdm
+json_tricks
+prettytable
+scipy
+matplotlib
+easydict
+PyYAML
+tensorboardX
+dataclasses
+smplx
+h5py
+chumpy
+wandb
+torch
+torchvision
