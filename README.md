@@ -30,6 +30,10 @@ We employ a coarse-to-fine query refinement process, initially randomly sampling
 }
 ```
 
+# Update Logs
+
+[Mar 23, 2025] Updated the support for inference on the Shelf and Campus datasets.
+
 # 1. Installation
 
 
@@ -72,6 +76,8 @@ Consider the project root directory as ```${POSE_ROOT}```.
 
 **CMU Panoptic dataset**. Please download the CMU Panoptic Dataset following [VoxelPose](https://github.com/microsoft/voxelpose-pytorch) as below:
 
+* [Update: Mar 23, 2025] More detailed guidance is available [here](docs/detail_install.md), along with a convenient script to download the sequences. 
+
 * Download the dataset by following the instructions in [panoptic-toolbox](https://github.com/CMU-Perceptual-Computing-Lab/panoptic-toolbox) and extract them under ```${POSE_ROOT}/data/panoptic/```
 
 * You can only download those sequences you need. You can also just download a subset of camera views by specifying the number of views (HD_Video_Number) and changing the camera order in ```./scripts/getData.sh```. The sequences and camera views used in our project can be obtained from [here](docs/CMU_sequences.md), and the ```Table A.1``` in the Supplementary Materials of [our paper](https://arxiv.org/pdf/2311.10983#page=11.29). 
@@ -99,6 +105,21 @@ ${POSE_ROOT}
 
 **Shelf/Campus Dataset**. Please follow [VoxelPose](https://github.com/microsoft/voxelpose-pytorch) to download 
 the Shelf/Campus Dataset. 
+
+The structure should look like this:
+
+```
+${POSE_ROOT}
+|-- models
+|   |-- pose_resnet50_panoptic.pth.tar
+|-- data
+    |-- CampusSeq1
+        |-- Camera0
+        |   |-- *.png
+        |-- calibration_campus.json
+        |-- ...
+    |-- Shelf
+```
 
 # 2. Training
 
@@ -148,12 +169,11 @@ python run/validate_3d.py --cfg configs/panoptic/knn5-lr4-q1024.yaml --model_pat
 python run/validate_3d.py --cfg configs/panoptic/knn5-lr4-q1024.yaml --model_path models/mvgformer_q1024_model.pth.tar DATASET.TEST_CAM_SEQ=CMU1
 ```
 
-* ```Change Dataset without finetuning```. The dataset can be ```Shelf,Campus```.
-
+* ```Change Dataset without finetuning```. Shelf and Campus:
 ```
-python run/validate_3d.py --cfg XXXX --model_path models/mvgformer_q1024_model.pth.tar --dataset Shelf/Campus
+python run/validate_3d.py --cfg configs/shelf_campus/campus_knn5-lr4-q1024.yaml --model_path models/mvgformer_q1024_model.pth.tar --dataset Campus
+python run/validate_3d.py --cfg configs/shelf_campus/shelf_knn5-lr4-q1024.yaml --model_path models/mvgformer_q1024_model.pth.tar --dataset Shelf
 ```
-
 
 ## 3.2 In-domain Evaluation
 
