@@ -260,7 +260,8 @@ class DQDecoderLayer(MvPDecoderLayer):
                  visualization_jump_num=200,
                  bayesian_update=False,
                  triangulation_method='linalg',
-                 filter_query=True):
+                 filter_query=True,
+                 num_joints=15):
         super().__init__(space_size, space_center,
                  img_size, d_model=d_model, d_ffn=d_ffn,
                  dropout=dropout, activation=activation,
@@ -312,7 +313,7 @@ class DQDecoderLayer(MvPDecoderLayer):
 
         num_classes = 2
         self.class_embed = nn.Linear(d_model, num_classes)
-        self.num_joints = 15
+        self.num_joints = num_joints
 
         self.feature_update_method = feature_update_method
         self.init_self_attention = init_self_attention
@@ -484,7 +485,7 @@ class DQDecoderLayer(MvPDecoderLayer):
             # batch, 15, 1
             G = torch.from_numpy(human_tree.conv_J2B.T).to(device)
             bones = poses_3d_gt_all_flat @ G
-            bones = bones.reshape(-1, 15, 3)
+            bones = bones.reshape(-1, self.num_joints, 3)
             bone_length_gt = bones.norm(dim=2)[:,1:].unsqueeze(-1)
             
             total_inds = []
@@ -910,7 +911,12 @@ class DQDecoderLayer(MvPDecoderLayer):
         indices_stgt = None
         if indices_all is None:
             reference_points_valid = reference_points.view(batch, -1, self.num_joints, 3)[batch_ids,query_ids,...] # TODO: filter valid as new_ref_points
-            indices_stgt = self.match_ref_points_to_gt(reference_points_valid, batch_ids, query_ids, meta)
+
+            # This function is for visualization only.
+            try:
+                indices_stgt = self.match_ref_points_to_gt(reference_points_valid, batch_ids, query_ids, meta)
+            except:
+                indices_stgt = None
         else:
             indices_stgt = indices_all
         
@@ -1058,11 +1064,15 @@ class DQDecoderLayer(MvPDecoderLayer):
         num_points = len(reference_points)
         gt_3d_points = meta[0]['joints_3d']
         gt_persons = meta[0]['num_person']
-        
+
         # output_batch = []
         # output_ind = []
         
         batch_matches = []
+
+        if gt_3d_points.shape[2]==14 and reference_points.shape[1]==15:
+            reference_points = reference_points[..., [14, 13, 12, 6, 7, 8, 11, 10, 9, 3, 4, 5, 0, 1], :]
+
         if batch_ids.numel() > 0:
             for i in range(batch_ids.max()+1):
                 batch_matches.append([[], []])
